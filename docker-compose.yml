@@ -1,0 +1,45 @@
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: book_practice_db
+    environment:
+      POSTGRES_DB: book_practice
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - book-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U root -d book_practice" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: book_practice_app
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/book_practice
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: admin123
+    networks:
+      - book-network
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  book-network:
+    driver: bridge
