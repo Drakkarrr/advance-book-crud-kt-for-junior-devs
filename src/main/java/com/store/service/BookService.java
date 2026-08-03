@@ -6,7 +6,7 @@ import com.store.dto.BookResponse;
 import java.util.List;
 
 public interface BookService {
-    BookResponse create(BookResponse request);
+    BookResponse create(BookRequest request);
     BookResponse getById(Long id);
     List<BookResponse> getAll();
     BookResponse update(Long id, BookRequest request);
